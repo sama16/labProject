@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/bookList">
+        <file>bookList.txt</file>
+    </qresource>
+</RCC>
+marah
