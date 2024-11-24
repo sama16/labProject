@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     loginView = new LoginView(this);
     adminView = new AdminView(this);
     userpanel= new UserPanel(this);
-
     stackedWidget->addWidget(welcomeView);
     stackedWidget->addWidget(loginView);
     stackedWidget->addWidget(adminView);
@@ -17,9 +16,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(welcomeView, &WelcomeView::adminRequested, this, &MainWindow::showAdminPanel);
     connect(welcomeView, &WelcomeView::userRequested, this, &MainWindow::showUserPanel);
     connect(loginView, &LoginView::loginSuccessful, this, &MainWindow::loginSuccessful);
-
-
-
 }
 
 MainWindow::~MainWindow() {

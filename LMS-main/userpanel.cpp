@@ -1,22 +1,15 @@
 #include "userpanel.h"
 #include "userview.h"
+#include <QUuid> // For generating unique IDs
+
 UserPanel::UserPanel(QWidget *parent) : QWidget(parent) {
     // Create UI elements
     comboBox = new QComboBox(this);
     comboBox->addItem("Login");
     comboBox->addItem("Register");
 
-    usernameLabel = new QLabel("Username:", this);
+    usernameLabel = new QLabel("Name:", this);
     usernameEdit = new QLineEdit(this);
-
-    passwordLabel = new QLabel("Password:", this);
-    passwordEdit = new QLineEdit(this);
-    passwordEdit->setEchoMode(QLineEdit::Password);
-
-    confirmPasswordLabel = new QLabel("Confirm Password:", this);
-    confirmPasswordEdit = new QLineEdit(this);
-    confirmPasswordEdit->setEchoMode(QLineEdit::Password);
-    confirmPasswordEdit->setVisible(false);
 
     button = new QPushButton("Submit", this);
 
@@ -27,10 +20,6 @@ UserPanel::UserPanel(QWidget *parent) : QWidget(parent) {
     // Add widgets to layouts
     inputLayout->addWidget(usernameLabel);
     inputLayout->addWidget(usernameEdit);
-    inputLayout->addWidget(passwordLabel);
-    inputLayout->addWidget(passwordEdit);
-    inputLayout->addWidget(confirmPasswordLabel);
-    inputLayout->addWidget(confirmPasswordEdit);
 
     mainLayout->addWidget(comboBox);
     mainLayout->addLayout(inputLayout);
@@ -38,29 +27,91 @@ UserPanel::UserPanel(QWidget *parent) : QWidget(parent) {
 
     // Connect the button's clicked signal to the handleButtonClicked slot
     connect(button, &QPushButton::clicked, this, &UserPanel::handleButtonClicked);
-
-
-    // Connect the comboBox's currentIndexChanged signal to a slot to show/hide confirm password field
-    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index) {
-        confirmPasswordLabel->setVisible(index == 1);
-        confirmPasswordEdit->setVisible(index == 1);
-    });
 }
 
 void UserPanel::handleButtonClicked() {
-    QString username = usernameEdit->text();
-    QString password = passwordEdit->text();
-    QString confirmPassword = confirmPasswordEdit->text();
+    QString username = usernameEdit->text().trimmed();
 
-    if (comboBox->currentIndex() == 0) { // Login
-        emit loginRequested(username, password);
-        UserView *userView = new UserView();
-        // Set UserView to full screen
-        userView->setWindowTitle("User View");
-        userView->showFullScreen();
-        this->hide();
-    } else { // Register
-        emit registerRequested(username, password, confirmPassword);
+    if (username.isEmpty()) {
+        QMessageBox::warning(this, "Input Error", "Please enter a username.");
+        return;
     }
 
+    if (comboBox->currentIndex() == 0) { // Login
+        if (loginUser(username)) {
+            UserView *userView = new UserView();
+            userView->setWindowTitle("User View");
+            userView->showFullScreen();
+            this->hide();
+        } else {
+            QMessageBox::warning(this, "Login Failed", "Name not found. Please register first.");
+        }
+    } else { // Register
+        if (registerUser(username)) {
+            QMessageBox::information(this, "Registration Successful", "You can now log in.");
+        } else {
+            QMessageBox::warning(this, "Registration Failed", "Name already exists.");
+        }
+    }
+}
+
+bool UserPanel::registerUser(const QString &username) {
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt");
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Unable to access user data.");
+        return false;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList userDetails = line.split(",");
+        if (!userDetails.isEmpty() && userDetails[0] == username) { // Check if username already exists
+            file.close();
+            return false;
+        }
+    }
+
+    // Generate a unique user ID
+    QString userId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+
+    // Add user details to the main file
+    QTextStream out(&file);
+    file.seek(file.size()); // Move to the end of the file
+    out << username << ",{},{}\n"; // Format: username,borrowingHistory,seminarParticipation
+    file.close();
+
+    // Store the user ID in a separate file
+    QFile idFile("C:/Users/hp/Desktop/labProject/LMS-main/randomID.txt");
+    if (!idFile.open(QIODevice::Append | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Unable to store user ID.");
+        return false;
+    }
+
+    QTextStream idOut(&idFile);
+    idOut << username << "," << userId << "\n"; // Format: username,userID
+    idFile.close();
+
+    return true;
+}
+
+bool UserPanel::loginUser(const QString &username) {
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Unable to access user data.");
+        return false;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList userDetails = line.split(",");
+        if (!userDetails.isEmpty() && userDetails[0] == username) { // Check if username matches
+            file.close();
+            return true;
+        }
+    }
+
+    file.close();
+    return false;
 }

@@ -29,6 +29,7 @@ private slots:
     void provideFeedbackForSeminar();
 
 
+
 private:
     void setupUI();               // Setup the UI components
     void loadBooks();             // Load books into the availableBooks list

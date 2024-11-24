@@ -61,4 +61,6 @@ RESOURCES += \
 
 DISTFILES += \
     books.txt \
-    feedback.txt
+    borrowHistory.txt \
+    feedback.txt \
+    randomID.txt

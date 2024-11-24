@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QString>
 #include <QLineEdit>
+#include <QListWidget>
 
 class AdminView : public QWidget {
     Q_OBJECT
@@ -31,6 +32,7 @@ private:
     // User management
     QLineEdit *userInput;
     QStringList userList; // Store usernames
+     QListWidget *listView;
     //seminar management
     QLineEdit *seminarTitleInput;
     QLineEdit *seminarDateInput;

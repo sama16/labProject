@@ -9,6 +9,8 @@
 #include <vector>
 #include <algorithm> // For std::remove and std::find
 #include "welcomeview.h"
+#include <QListWidget>
+#include <QUuid>
 
 class AdminView : public QWidget {
     Q_OBJECT
@@ -16,15 +18,12 @@ class AdminView : public QWidget {
 public:
     AdminView(QWidget *parent = nullptr);
     ~AdminView();
-void setWelcomeView(WelcomeView *view); // Setter for WelcomeView
+    void setWelcomeView(WelcomeView *view); // Setter for WelcomeView
 
 private slots:
     void handleGoBack();
 
 private:
-
-
-
     void setupUI();
     void loadBooks();  // Load books when initializing
     void saveBooks();  // Save books when destroying
@@ -41,6 +40,8 @@ private:
     // Methods for managing users
     void addUser();
     void deleteUser();
+    void viewBorrowingHistory();
+    void viewFeedback();
 
     // Methods for managing seminars
     void addSeminar();
@@ -56,9 +57,12 @@ private:
     QLineEdit *userInput;
     QLineEdit *seminarTitleInput;
     QLineEdit *seminarDateInput;
+    QListWidget *listView; // Initialized list view widget
+    QListWidget *listViewFeedback;
+    WelcomeView *welcomeView; // For handling the go-back functionality
 };
 
-AdminView::AdminView(QWidget *parent) : QWidget(parent) {
+AdminView::AdminView(QWidget *parent) : QWidget(parent), welcomeView(nullptr) {
     setupUI();
     loadBooks();  // Load books when initializing
     loadUsers();  // Load users when initializing
@@ -76,10 +80,8 @@ void AdminView::setupUI() {
 
     QPushButton *back = new QPushButton("Go Back", this);
     connect(back, &QPushButton::clicked, this, &AdminView::handleGoBack);
-    // Connect the button's clicked signal to a slot method in the current class
-
-
     layout->addWidget(back);
+
     // Book management
     QLabel *bookLabel = new QLabel("Manage Books", this);
     layout->addWidget(bookLabel);
@@ -92,7 +94,7 @@ void AdminView::setupUI() {
     bookAuthorInput->setPlaceholderText("Enter Author Name");
     layout->addWidget(bookAuthorInput);
 
-    // Buttons for adding, editing, and deleting
+    // Buttons for adding, editing, and deleting books
     QPushButton *addButton = new QPushButton("Add Book", this);
     connect(addButton, &QPushButton::clicked, this, &AdminView::addBook);
     layout->addWidget(addButton);
@@ -121,6 +123,15 @@ void AdminView::setupUI() {
     connect(deleteUserButton, &QPushButton::clicked, this, &AdminView::deleteUser);
     layout->addWidget(deleteUserButton);
 
+    // List view for feedback and history
+    listView = new QListWidget(this);
+    layout->addWidget(listView);
+
+    QPushButton *viewBookHistory = new QPushButton("View Borrowing History", this);
+    connect(viewBookHistory, &QPushButton::clicked, this, &AdminView::viewBorrowingHistory);
+    layout->addWidget(viewBookHistory);
+
+
     // Seminar management
     QLabel *seminarLabel = new QLabel("Manage Seminars", this);
     layout->addWidget(seminarLabel);
@@ -144,8 +155,15 @@ void AdminView::setupUI() {
     QPushButton *deleteSeminarButton = new QPushButton("Delete Seminar", this);
     connect(deleteSeminarButton, &QPushButton::clicked, this, &AdminView::deleteSeminar);
     layout->addWidget(deleteSeminarButton);
-}
 
+
+    listViewFeedback = new QListWidget(this);
+    layout->addWidget(listViewFeedback);
+
+    QPushButton *viewFeedbackHistory = new QPushButton("View Feedback History", this);
+    connect(viewFeedbackHistory, &QPushButton::clicked, this, &AdminView::viewFeedback);
+    layout->addWidget(viewFeedbackHistory);
+}
 
 void AdminView::handleGoBack() {
 
@@ -179,69 +197,6 @@ void AdminView::saveBooks() {
 
     file.close();
 }
-
-void AdminView::loadUsers() {
-    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt"); // Path to your users file
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "File Error", "Could not open users file.");
-        return;
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        userList.push_back(line); // Use push_back to add to vector
-    }
-
-    file.close();
-}
-
-void AdminView::saveUsers() {
-    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt"); // Path to your users file
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "File Error", "Could not open users file for writing.");
-        return;
-    }
-
-    QTextStream out(&file);
-    for (const QString &user : userList) {
-        out << user << "\n"; // Write each user on a new line
-    }
-
-    file.close();
-}
-
-void AdminView::loadSeminars() {
-    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/seminar.txt");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "File Error", "Could not open seminars file.");
-        return;
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        seminarList.push_back(line); // Use push_back to add to vector
-    }
-
-    file.close();
-}
-
-void AdminView::saveSeminars() {
-    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/seminar.txt");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "File Error", "Could not open seminars file for writing.");
-        return;
-    }
-
-    QTextStream out(&file);
-    for (const QString &seminar : seminarList) {
-        out << seminar << "\n"; // Write each seminar on a new line
-    }
-
-    file.close();
-}
-
 void AdminView::addBook() {
     QString title = bookTitleInput->text();
     QString author = bookAuthorInput->text();
@@ -305,6 +260,41 @@ void AdminView::deleteBook() {
     bookTitleInput->clear(); // Clear input field after deleting
 }
 
+
+
+void AdminView::loadUsers() {
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt"); // Path to your users file
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "File Error", "Could not open users file.");
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        userList.push_back(line); // Use push_back to add to vector
+    }
+
+    file.close();
+}
+
+void AdminView::saveUsers() {
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt"); // Path to your users file
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "File Error", "Could not open users file for writing.");
+        return;
+    }
+
+
+    QTextStream out(&file);
+    for (const QString &user : userList) {
+        out << user << "\n"; // Write each user on a new line
+    }
+
+    file.close();
+}
+ // Include QUuid header for unique ID generation
+
 void AdminView::addUser() {
     QString username = userInput->text();
 
@@ -319,8 +309,36 @@ void AdminView::addUser() {
         return;
     }
 
-    userList.push_back(username); // Use push_back to add to vector
-    saveUsers(); // Save the updated user list after adding
+    // Generate a unique user ID
+    QString userId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+
+    // Open the users file and append the new user details
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/users.txt");
+    if (!file.open(QIODevice::Append | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Unable to open users file.");
+        return;
+    }
+
+    QTextStream out(&file);
+    file.seek(file.size());  // Move to the end of the file
+    out << username << ",{},{}\n";  // Format: username,borrowingHistory,seminarParticipation
+    file.close();
+
+    // Store the user ID in a separate file (randomID.txt)
+    QFile idFile("C:/Users/hp/Desktop/labProject/LMS-main/randomID.txt");
+    if (!idFile.open(QIODevice::Append | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Unable to store user ID.");
+        return;
+    }
+
+    QTextStream idOut(&idFile);
+    idOut << username << "," << userId << "\n";  // Format: username,userID
+    idFile.close();
+
+    // Add the new user to the list and save the updated list
+    userList.push_back(username);
+    saveUsers();  // Save the updated user list to the users file
+
     QMessageBox::information(this, "Add User", "User added: " + username);
     userInput->clear(); // Clear input field after adding
 }
@@ -333,16 +351,134 @@ void AdminView::deleteUser() {
         return;
     }
 
+    // Delete the user from the users list
     auto it = std::remove(userList.begin(), userList.end(), username);
     if (it != userList.end()) {
         userList.erase(it, userList.end());
         saveUsers(); // Save the updated user list after deleting
-        QMessageBox::information(this, "Delete User", "User deleted: " + username);
+
+        // Now, delete the user ID from the randomID.txt file
+        QFile idFile("C:/Users/hp/Desktop/labProject/LMS-main/randomID.txt");
+        if (!idFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
+            QMessageBox::critical(this, "File Error", "Could not open user ID file.");
+            return;
+        }
+
+        QTextStream in(&idFile);
+        QStringList lines;
+        bool userFound = false;
+
+        // Read all lines and remove the user ID entry
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList parts = line.split(',');
+            if (parts.size() >= 2 && parts[0] == username) {
+                userFound = true;  // User found, skip this line
+            } else {
+                lines.append(line);  // Keep the other users
+            }
+        }
+
+        // If user was found and deleted, rewrite the file without their ID
+        if (userFound) {
+            idFile.resize(0);  // Clear the file before writing new content
+            QTextStream out(&idFile);
+            for (const QString &line : lines) {
+                out << line << "\n";  // Write the remaining users
+            }
+            idFile.close();
+            QMessageBox::information(this, "Delete User", "User and their ID have been deleted: " + username);
+        } else {
+            QMessageBox::warning(this, "Delete Error", "User ID not found in ID file.");
+        }
+
     } else {
         QMessageBox::warning(this, "Delete Error", "User not found.");
     }
+
     userInput->clear(); // Clear input field after deleting
 }
+
+
+void AdminView::viewBorrowingHistory(){
+    listView->clear();  // Clear the list view
+
+    // Open the borrowing history file
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/borrowHistory.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "File Error", "Could not open borrowing history file.");
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        listView->addItem(line);  // Add each entry to the list view
+    }
+
+    file.close();
+}
+void AdminView::viewFeedback(){
+
+
+    listViewFeedback->clear();  // Clear the feedback list view
+
+    // Open the feedback file
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/feedback.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "File Error", "Could not open feedback file.");
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        // Assuming feedback format is "username - feedbackText"
+        QStringList feedbackData = line.split(" - ");
+        if (feedbackData.size() == 2) {
+            QString userName = feedbackData[0];
+            QString feedbackText = feedbackData[1];
+
+            // Display the feedback entry in the feedback list view
+            listViewFeedback->addItem(userName + " said: " + feedbackText);
+        }
+    }
+
+    file.close();
+}
+void AdminView::loadSeminars() {
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/seminar.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "File Error", "Could not open seminars file.");
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        seminarList.push_back(line); // Use push_back to add to vector
+    }
+
+    file.close();
+}
+
+void AdminView::saveSeminars() {
+    QFile file("C:/Users/hp/Desktop/labProject/LMS-main/seminar.txt");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "File Error", "Could not open seminars file for writing.");
+        return;
+    }
+
+    QTextStream out(&file);
+    for (const QString &seminar : seminarList) {
+        out << seminar << "\n"; // Write each seminar on a new line
+    }
+
+    file.close();
+}
+
+
 
 void AdminView::addSeminar() {
     QString title = seminarTitleInput->text();

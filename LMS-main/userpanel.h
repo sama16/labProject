@@ -3,11 +3,15 @@
 
 #include <QWidget>
 #include <QComboBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
+#include <QMessageBox>
 
 class UserPanel : public QWidget {
     Q_OBJECT
@@ -15,18 +19,19 @@ class UserPanel : public QWidget {
 public:
     explicit UserPanel(QWidget *parent = nullptr);
 
-signals:
-    void loginRequested(QString username, QString password);
-    void registerRequested(QString username, QString password, QString confirmPassword);
-
-private slots:
-    void handleButtonClicked();
-
 private:
     QComboBox *comboBox;
-    QLineEdit *usernameEdit, *passwordEdit, *confirmPasswordEdit;
+    QLabel *usernameLabel;
+    QLineEdit *usernameEdit;
     QPushButton *button;
-    QLabel *usernameLabel, *passwordLabel, *confirmPasswordLabel;
+
+    void handleButtonClicked();
+    bool registerUser(const QString &username);
+    bool loginUser(const QString &username);
+
+signals:
+    void loginRequested(const QString &username);
+    void registerRequested(const QString &username);
 };
 
 #endif // USERPANEL_H

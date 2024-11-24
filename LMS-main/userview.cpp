@@ -14,6 +14,7 @@ UserView::UserView(QWidget *parent) : QWidget(parent) {
     loadBooks();
     loadUserData();
     loadSeminars();
+
 }
 
 UserView::~UserView() {}
@@ -146,6 +147,7 @@ void UserView::viewHistory() {
         listView->addItem(history);  // Add each entry in borrowingHistory to the list view
     }
 }
+
 void UserView::searchSeminars() {
     QString searchTerm = searchInputSeminar->text();  // Get the search term from the input field
     std::vector<QString> searchResults;
