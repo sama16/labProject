@@ -22,17 +22,16 @@ LoginView::LoginView(QWidget *parent) : QWidget(parent) {
     loginButton = new QPushButton("Login", this);
     layout->addWidget(loginButton);
 
-    // Connect the login button to the attemptLogin slot
+    
     connect(loginButton, &QPushButton::clicked, this, &LoginView::attemptLogin);
 }
 bool login=false;
 void LoginView::attemptLogin() {
-    // const QString correctUsername = "admin"; // Replace with your username
-    // const QString correctPassword = "password"; // Replace with your password
+  
     if (usernameInput->text() != "" && passwordInput->text() != ""){
     for(int i=0;i<4;i++){
         if (usernameInput->text() == usernames[i] && passwordInput->text() == passwords[i]){
-        emit loginSuccessful(); // Emit the signal for successful login
+        emit loginSuccessful(); 
             login=true;
         }
     }
