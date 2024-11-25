@@ -24,4 +24,4 @@ private:
     QLineEdit *descriptionEdit;
 };
 
-#endif // ADDEMINARDIALOG_H
+#endif 
