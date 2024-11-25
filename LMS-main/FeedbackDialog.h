@@ -23,4 +23,4 @@ private:
     void setupUI();
 };
 
-#endif // FEEDBACKDIALOG_H
+#endif 
