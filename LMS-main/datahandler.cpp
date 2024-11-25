@@ -29,4 +29,3 @@ void DataHandler::saveBooks(const QString &filename) {
     }
 }
 
-// Similar implementations for loadUsers, saveUsers, loadSeminars, and saveSeminars

@@ -31,32 +31,36 @@ private:
     void saveSeminars();
 
 
-    // Book management
+   
     QLineEdit *bookTitleInput;
     QLineEdit *bookAuthorInput;
-    QStringList bookList; // Store book information
+    QStringList bookList; 
 
-    // User management
+    
     QLineEdit *userInput;
+<<<<<<< HEAD
     QStringList userList; // Store usernames
     QListWidget *listView;
     //seminar management
+=======
+    QStringList userList; 
+     QListWidget *listView;
+    
+>>>>>>> c6df74f383e1c6f6f1daacad08bdc182bc6d7640
     QLineEdit *seminarTitleInput;
     QLineEdit *seminarDateInput;
     QStringList seminarList;
 
 
-    // Book functions
+    
     void addBook();
     void editBook();
     void deleteBook();
 
-    // User functions
     void addUser();
     void deleteUser();
     void manageUsers();
 
-    //seminar finction
     void addSeminar();
     void editSeminar();
     void deleteSeminar();

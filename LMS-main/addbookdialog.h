@@ -21,4 +21,4 @@ private:
     QLineEdit *categoryEdit;
 };
 
-#endif // ADDBOOKDIALOG_H
+#endif 
