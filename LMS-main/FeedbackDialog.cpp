@@ -28,13 +28,13 @@ void FeedbackDialog::setupUI() {
     layout->addWidget(ratingComboBox);
 
     layout->addWidget(submitButton);
-    connect(submitButton, &QPushButton::clicked, this, &QDialog::accept); // Close the dialog on click
+    connect(submitButton, &QPushButton::clicked, this, &QDialog::accept); 
 }
 
 QString FeedbackDialog::getFeedback() const {
-    return feedbackInput->toPlainText(); // Get the feedback text
+    return feedbackInput->toPlainText(); 
 }
 
 int FeedbackDialog::getRating() const {
-    return ratingComboBox->currentIndex() + 1; // Get the selected rating (1 to 5)
+    return ratingComboBox->currentIndex() + 1; 
 }
