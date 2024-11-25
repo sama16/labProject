@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include "adminview.h"
-#include"userview.h"
+#include "userview.h"
 #include "welcomeview.h"
 #include "loginview.h"
 #include"userpanel.h"
@@ -21,13 +21,19 @@ private slots:
     void showAdminPanel();
     void loginSuccessful();
     void showUserPanel();
+    void goBackToWelcome();
+    void goBack();
+
 
 private:
     QStackedWidget *stackedWidget;
-    AdminView *adminView;
-    UserPanel *userpanel;
     WelcomeView *welcomeView;
+    UserPanel *userpanel;
     LoginView *loginView;
+    AdminView *adminView;
+    UserView *userview;
+;
+
 
 };
 

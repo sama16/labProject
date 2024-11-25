@@ -1,3 +1,4 @@
+
 #ifndef USERVIEW_H
 #define USERVIEW_H
 
@@ -10,7 +11,8 @@
 
 class UserView : public QWidget {
     Q_OBJECT
-
+signals:
+    void goBack();
 public:
     explicit UserView(QWidget *parent = nullptr);
     ~UserView();
@@ -20,13 +22,16 @@ public:
         int lateReturnCount = 0;
         bool isBlacklisted = false;
     };
+
 private slots:
+
     void searchBooks();           // Slot to handle book search
     void borrowBook();            // Slot to borrow selected book
     void viewHistory();           // Slot to view borrowing history
     void registerForSeminar();    // Slot to register for a seminar
     void searchSeminars();
     void provideFeedbackForSeminar();
+
 
 
 
@@ -50,7 +55,7 @@ private:
     std::vector<QString> borrowedBooks;    // User's borrowed books
     std::vector<QString> seminarList;      // List of seminars
     std::vector<QString> borrowingHistory; // User's borrowing history
- const int MAX_BORROW_LIMIT = 3;
+    const int MAX_BORROW_LIMIT = 3;
 };
 
 #endif // USERVIEW_H

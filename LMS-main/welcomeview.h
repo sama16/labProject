@@ -17,8 +17,6 @@ signals:
     void adminRequested();
     void userRequested();
 
-
-
 private:
     void setupUI();
 

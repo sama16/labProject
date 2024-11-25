@@ -1,5 +1,5 @@
 #include "welcomeview.h"
-
+#include "adminview.h"
 WelcomeView::WelcomeView(QWidget *parent) : QWidget(parent) {
     setupUI();
 }

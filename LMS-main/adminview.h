@@ -1,3 +1,4 @@
+
 #ifndef ADMINVIEW_H
 #define ADMINVIEW_H
 
@@ -6,6 +7,7 @@
 #include <QString>
 #include <QLineEdit>
 #include <QListWidget>
+#include "welcomeview.h"
 
 class AdminView : public QWidget {
     Q_OBJECT
@@ -14,8 +16,13 @@ public:
     explicit AdminView(QWidget *parent = nullptr);
     ~AdminView();
 
+signals:
+    void goBackToWelcome();
 private:
     void setupUI();
+
+
+
     void loadBooks();
     void saveBooks();
     void loadUsers();
@@ -32,11 +39,11 @@ private:
     // User management
     QLineEdit *userInput;
     QStringList userList; // Store usernames
-     QListWidget *listView;
+    QListWidget *listView;
     //seminar management
     QLineEdit *seminarTitleInput;
     QLineEdit *seminarDateInput;
-      QStringList seminarList;
+    QStringList seminarList;
 
 
     // Book functions

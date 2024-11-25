@@ -1,3 +1,4 @@
+
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -18,10 +19,9 @@ class AdminView : public QWidget {
 public:
     AdminView(QWidget *parent = nullptr);
     ~AdminView();
-    void setWelcomeView(WelcomeView *view); // Setter for WelcomeView
 
-private slots:
-    void handleGoBack();
+signals:
+    void goBackToWelcome();
 
 private:
     void setupUI();
@@ -54,6 +54,7 @@ private:
 
     QLineEdit *bookTitleInput;
     QLineEdit *bookAuthorInput;
+    QLineEdit *bookCategoryInput;
     QLineEdit *userInput;
     QLineEdit *seminarTitleInput;
     QLineEdit *seminarDateInput;
@@ -79,7 +80,7 @@ void AdminView::setupUI() {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     QPushButton *back = new QPushButton("Go Back", this);
-    connect(back, &QPushButton::clicked, this, &AdminView::handleGoBack);
+    connect(back, &QPushButton::clicked, this, &AdminView::goBackToWelcome);
     layout->addWidget(back);
 
     // Book management
@@ -93,6 +94,10 @@ void AdminView::setupUI() {
     bookAuthorInput = new QLineEdit(this);
     bookAuthorInput->setPlaceholderText("Enter Author Name");
     layout->addWidget(bookAuthorInput);
+
+    bookCategoryInput = new QLineEdit(this);
+    bookCategoryInput->setPlaceholderText("Enter Book category");
+    layout->addWidget(bookCategoryInput);
 
     // Buttons for adding, editing, and deleting books
     QPushButton *addButton = new QPushButton("Add Book", this);
@@ -165,9 +170,8 @@ void AdminView::setupUI() {
     layout->addWidget(viewFeedbackHistory);
 }
 
-void AdminView::handleGoBack() {
 
-}
+
 void AdminView::loadBooks() {
     QFile file("C:/Users/hp/Desktop/labProject/LMS-main/bookList.txt"); // Path to your books file
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -200,17 +204,32 @@ void AdminView::saveBooks() {
 void AdminView::addBook() {
     QString title = bookTitleInput->text();
     QString author = bookAuthorInput->text();
+    QString category = bookCategoryInput->text();  // Get the category from the input field
 
+    // Check if the title is empty
     if (title.isEmpty()) {
         QMessageBox::warning(this, "Input Error", "Please enter a book title.");
         return;
     }
 
-    bookList.push_back(title + (author.isEmpty() ? "" : " by " + author)); // Use push_back to add to vector
-    saveBooks(); // Save the updated list after adding
-    QMessageBox::information(this, "Add Book", "Book added: " + title + (author.isEmpty() ? "" : " by " + author));
+    // Add the book to the list with category included
+    QString bookDetails = title;
+    if (!author.isEmpty()) {
+        bookDetails += " by " + author;  // Append the author if provided
+    }
+    if (!category.isEmpty()) {
+        bookDetails += " (" + category + ")";  // Append the category if provided
+    }
+
+    bookList.push_back(bookDetails);  // Add the book to the list
+    saveBooks();  // Save the updated list to a file (if necessary)
+
+    QMessageBox::information(this, "Add Book", "Book added: " + bookDetails);
+
+    // Clear input fields
     bookTitleInput->clear();
-    bookAuthorInput->clear(); // Clear input fields after adding
+    bookAuthorInput->clear();
+    bookCategoryInput->clear();  // Clear the category input field
 }
 
 void AdminView::editBook() {
@@ -293,7 +312,7 @@ void AdminView::saveUsers() {
 
     file.close();
 }
- // Include QUuid header for unique ID generation
+// Include QUuid header for unique ID generation
 
 void AdminView::addUser() {
     QString username = userInput->text();

@@ -1,3 +1,4 @@
+
 #include "userview.h"
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -23,8 +24,12 @@ void UserView::setupUI() {
 
     // Set up the layout and UI components
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QPushButton *back = new QPushButton("Go Back", this);
+    connect(back, &QPushButton::clicked, this, &UserView::goBack);
+    mainLayout->addWidget(back);
 
     // Search bar
+
     searchInput = new QLineEdit(this);
     searchInput->setPlaceholderText("Search for a book");
     connect(searchInput, &QLineEdit::textChanged, this, &UserView::searchBooks);
@@ -131,6 +136,16 @@ void UserView::borrowBook() {
 
             // Show success message
             QMessageBox::information(this, "Success", "You have borrowed: " + selectedBook);
+
+            // Save borrowed books to a file (borrowedBooks.txt)
+            QFile file("C:/Users/hp/Desktop/labProject/LMS-main/borrowHistory.txt"); // Path to your borrowed books file
+            if (file.open(QIODevice::Append | QIODevice::Text)) {
+                QTextStream out(&file);
+                out << selectedBook << " - Due: 2024-12-01\n";  // Write the borrowed book and its due date
+                file.close();
+            } else {
+                QMessageBox::warning(this, "Error", "Failed to save borrowed book.");
+            }
         } else {
             QMessageBox::warning(this, "Error", "The book is not available.");
         }
@@ -138,6 +153,7 @@ void UserView::borrowBook() {
         QMessageBox::warning(this, "Error", "Please select a book to borrow.");
     }
 }
+
 
 void UserView::viewHistory() {
     listView->clear();  // Clear the list view
